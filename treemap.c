@@ -125,11 +125,45 @@ while (x->left != NULL) {
     return x; 
 }
 
-
+/*
 void removeNode(TreeMap * tree, TreeNode* node) {
 
-}
+}*/
+void transplant(TreeMap * tree, TreeNode * u, TreeNode * v) {
+    if (u == NULL || tree == NULL) return;
 
+    if (u->parent == NULL) {
+        tree->root = v;
+    } else if (u == u->parent->left) {
+        u->parent->left = v;
+    } else {
+        u->parent->right = v;
+    }
+    if (v != NULL) {
+        v->parent = u->parent;
+    }
+}
+void removeNode(TreeMap * tree, TreeNode* node) {
+    if (tree == NULL || node == NULL) return;
+
+    if (node->left == NULL) {
+        transplant(tree, node, node->right);
+    } else if (node->right == NULL) {
+        transplant(tree, node, node->left);
+    } else {
+        TreeNode * successor = minimum(node->right);
+        if (successor->parent != node) {
+            transplant(tree, successor, successor->right);
+            successor->right = node->right;
+            successor->right->parent = successor;
+        }
+        transplant(tree, node, successor);
+        successor->left = node->left;
+        successor->left->parent = successor;
+    }
+    free(node->pair);
+    free(node);
+} 
 void eraseTreeMap(TreeMap * tree, void* key){
     if (tree == NULL || tree->root == NULL) return;
 
